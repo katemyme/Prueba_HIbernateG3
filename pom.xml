@@ -71,7 +71,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>ni.edu.uam.prueba_hibernateg3/ni.edu.uam.prueba_hibernateg3.Controller.EquipoController
+                            <mainClass>ni.edu.uam.Prueba_HibernateG/ni.edu.uam.prueba_hibernateg3.Controller.EquipoController
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
