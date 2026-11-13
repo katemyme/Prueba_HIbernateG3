@@ -2,6 +2,7 @@ package ni.edu.uam.prueba_hibernateg3.Dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 import ni.edu.uam.prueba_hibernateg3.Database.JPAUtil;
 import ni.edu.uam.prueba_hibernateg3.Model.Equipo;
 import ni.edu.uam.prueba_hibernateg3.Model.TipoEquipo;
@@ -98,6 +99,37 @@ public class EquipoDao {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT e FROM Equipo e JOIN FETCH e.tipoEquipo ORDER BY e.id", Equipo.class).getResultList();
+        }
+        finally {
+            em.close();
+        }
+    }
+
+    // Búsqueda por parte del nombre y/o por tipo; el filtro que venga vacío no se aplica.
+    // Los valores escritos por el usuario siempre van con setParameter, nunca pegados al texto de la consulta.
+    public List<Equipo> buscar(String nombre, TipoEquipo tipoEquipo) {
+        boolean filtrarNombre = nombre != null && !nombre.isBlank();
+        boolean filtrarTipo = tipoEquipo != null && tipoEquipo.getId() != null;
+
+        String jpql = "SELECT e FROM Equipo e JOIN FETCH e.tipoEquipo t WHERE 1 = 1";
+        if (filtrarNombre) {
+            jpql += " AND LOWER(e.nombre) LIKE :nombre";
+        }
+        if (filtrarTipo) {
+            jpql += " AND t.id = :tipoId";
+        }
+        jpql += " ORDER BY e.id";
+
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            TypedQuery<Equipo> query = em.createQuery(jpql, Equipo.class);
+            if (filtrarNombre) {
+                query.setParameter("nombre", "%" + nombre.trim().toLowerCase() + "%");
+            }
+            if (filtrarTipo) {
+                query.setParameter("tipoId", tipoEquipo.getId());
+            }
+            return query.getResultList();
         }
         finally {
             em.close();
