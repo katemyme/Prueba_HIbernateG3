@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -85,6 +86,10 @@ public class EquipoController {
         colTipo.setCellValueFactory(new PropertyValueFactory<>("tipoEquipo"));
         // Mismos valores que la restricción chk_equipo_estado de la tabla
         cmbEstado.setItems(FXCollections.observableArrayList(Equipo.ESTADOS));
+        // Para que los combos vuelvan a mostrar su texto de ayuda después de "Limpiar" o "Quitar filtros"
+        mostrarPromptCuandoVacio(cmbTipo);
+        mostrarPromptCuandoVacio(cmbEstado);
+        mostrarPromptCuandoVacio(cmbFiltroTipo);
         tblEquipos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 seleccionarEquipo(newValue);
@@ -315,6 +320,18 @@ public class EquipoController {
             }
         }
         return ex.getMessage();
+    }
+
+    // JavaFX no vuelve a mostrar el promptText de un ComboBox cuando su valor pasa a null después
+    // de haber tenido una selección (queda en blanco). Esta celda muestra el promptText cuando no hay valor.
+    private <T> void mostrarPromptCuandoVacio(ComboBox<T> combo) {
+        combo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(T item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? combo.getPromptText() : item.toString());
+            }
+        });
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String mensaje) {
